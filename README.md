@@ -42,3 +42,37 @@ Click `Run`, you should see two rows, for ids `1` and `2`
 ### Suggestions
 
 Feel free to remove or repurpose the existing Sample Repository, Entity, Controller, and Service. 
+
+## NinjaOne Backend Resolution
+
+This API was intended to first register device types, then register devices and services. Customer registration does not
+require a specific order. Finally, linking devices and services to the customer. 
+There are already some records to facilitate use, they can be seen in the get endpoints.
+
+To simulate the linking of devices in the instruction, simply use the following json in the endpoint:
+* `/customer/1/assign`
+
+```json
+[
+    {
+        "deviceId": 1,
+        "quantity" : 2,
+        "services": [
+            2, 2, 4, 5, 5
+        ]
+    },
+    {
+        "deviceId": 2,
+        "quantity" : 3,
+        "services": [
+            3, 3, 3, 4, 4, 5, 5
+        ]
+    }
+]
+```
+
+There are two endpoints for checking results, one of them `/customer/{customer-id}/calculate` stores the calculations
+per device at runtime, making it faster, but if there are changes to the cost of the services this could be a problem.
+The other `/customer/{customer-id}/calculate/dynamic` does a dynamic calculation by device but requires heavier processing.
+
+It is also possible check the endpoint documentation at the url: `/swagger-ui/index.html#/`

@@ -7,19 +7,29 @@ plugins {
 
 group = 'com.ninjaone'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 repositories {
 	mavenCentral()
+}
+
+ext {
+	mapstructVersion = "1.5.5.Final"
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.data:spring-data-jpa'
+	implementation "org.mapstruct:mapstruct:1.5.5.Final"
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.1.4'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-cache', version: '3.1.4'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.12'
+
 	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+	annotationProcessor "org.mapstruct:mapstruct-processor:1.5.5.Final"
 }
 
 tasks.named('test') {
