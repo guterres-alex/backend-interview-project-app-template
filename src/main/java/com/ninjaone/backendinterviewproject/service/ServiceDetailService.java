@@ -11,15 +11,13 @@ public interface ServiceDetailService {
 
     ServiceDetail saveServiceDetailEntity(ServiceDetailRequestDto serviceDto);
 
-    Optional<ServiceDetail> getServiceDetailEntityById(Long id);
+    Optional<ServiceDetail> findServiceDetailEntityById(Long id);
 
     void deleteServiceDetailEntity(Long id);
 
     List<ServiceDetail> getServicesByDeviceType(DeviceType type, List<Long> services);
 
-    List<ServiceDetail> getServices(List<Long> services);
-
-    Iterable<ServiceDetail> getAllServiceDetailEntity();
+    Iterable<ServiceDetail> findAllServiceDetailEntity();
 
     Iterable<ServiceDetail> getAutomaticServices();
 }

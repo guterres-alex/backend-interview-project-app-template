@@ -1,5 +1,6 @@
 package com.ninjaone.backendinterviewproject.controller;
 
+import com.ninjaone.backendinterviewproject.dto.request.CustomerDeviceServicesChangeRequestDto;
 import com.ninjaone.backendinterviewproject.dto.request.CustomerDeviceServicesRequestDto;
 import com.ninjaone.backendinterviewproject.dto.request.CustomerRequestDto;
 import com.ninjaone.backendinterviewproject.dto.response.CustomerDeviceServicesResponseDto;
@@ -42,10 +43,18 @@ public class CustomerController implements CustomerOperations {
         service.deleteCustomerEntity(id);
     }
 
-    public CustomerDeviceServicesResponseDto postCustomerDeviceServices(
+    public CustomerDeviceServicesResponseDto postNewCustomerDeviceServices(
         Long customerId, List<CustomerDeviceServicesRequestDto> customerDeviceServicesRequestDtoList) {
 
-        return ofNullable(service.assignDeviceServices(customerId, customerDeviceServicesRequestDtoList))
+        return ofNullable(service.assignNewDeviceServices(customerId, customerDeviceServicesRequestDtoList))
+            .map(CustomerMapper.INSTANCE::customerToCustomerDeviceServicesDto)
+            .orElseThrow();
+    }
+
+    public CustomerDeviceServicesResponseDto postCustomerDeviceServices(
+        Long customerId, List<CustomerDeviceServicesChangeRequestDto> customerDeviceServicesChangeRequestDtoList) {
+
+        return ofNullable(service.assignServicesExistentDeviceServices(customerId, customerDeviceServicesChangeRequestDtoList))
             .map(CustomerMapper.INSTANCE::customerToCustomerDeviceServicesDto)
             .orElseThrow();
     }
@@ -53,14 +62,6 @@ public class CustomerController implements CustomerOperations {
     public ResponseEntity<BigDecimal> getCustomerCalculations(Long customerId) {
         return ofNullable(service.getCalculations(customerId))
             .map(value -> ResponseEntity.ok().body(value))
-            .orElseThrow();
-    }
-
-    public CustomerDeviceServicesResponseDto deleteCustomerDeviceServices(
-        Long customerId, List<CustomerDeviceServicesRequestDto> customerDeviceServicesRequestDtoList) {
-
-        return ofNullable(service.deleteDeviceServices(customerId, customerDeviceServicesRequestDtoList))
-            .map(CustomerMapper.INSTANCE::customerToCustomerDeviceServicesDto)
             .orElseThrow();
     }
 

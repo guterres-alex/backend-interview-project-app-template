@@ -7,13 +7,13 @@ import java.util.List;
 
 public record CustomerDeviceServicesResponseDto(Long id, String name, List<DeviceServicesDto> deviceServiceEntities) {
 
-    public record DeviceServicesDto(DeviceDto device, List<ServiceDetailDto> services) {
+    public record DeviceServicesDto(Long id, DeviceDto device, List<ServiceDetailDto> services) {
     }
 
-    public record DeviceDto(String id, String systemName, DeviceType type) {
+    public record DeviceDto(Long id, String systemName, DeviceType type) {
     }
 
-    public record ServiceDetailDto(String id, String name, BigDecimal cost, DeviceType deviceType){
+    public record ServiceDetailDto(Long id, String name, BigDecimal cost, DeviceType deviceType){
     }
 
 }

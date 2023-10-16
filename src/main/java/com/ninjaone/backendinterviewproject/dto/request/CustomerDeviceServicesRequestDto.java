@@ -6,6 +6,5 @@ import java.util.List;
 
 public record CustomerDeviceServicesRequestDto(
     @NotNull Long deviceId,
-    @NotEmpty List<Long> services,
-    @NotNull Integer quantity) {
+    @NotEmpty List<Long> services) {
 }

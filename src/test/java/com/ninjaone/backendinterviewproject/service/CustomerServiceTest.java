@@ -1,6 +1,7 @@
 package com.ninjaone.backendinterviewproject.service;
 
 import com.ninjaone.backendinterviewproject.database.CustomerRepository;
+import com.ninjaone.backendinterviewproject.dto.request.CustomerDeviceServicesChangeRequestDto;
 import com.ninjaone.backendinterviewproject.dto.request.CustomerDeviceServicesRequestDto;
 import com.ninjaone.backendinterviewproject.dto.request.CustomerRequestDto;
 import com.ninjaone.backendinterviewproject.exception.CustomerException;
@@ -110,7 +111,7 @@ public class CustomerServiceTest {
     }
 
     @Test
-    void assignDeviceServices() {
+    void assignNewDeviceServices() {
 
         when(repository.findById(ID)).thenReturn(Optional.of(customerResp));
 
@@ -127,22 +128,20 @@ public class CustomerServiceTest {
                 .build());
 
         when(serviceDetailService.getServicesByDeviceType(deviceType, List.of(1L, 2L, 3L))).thenReturn(
-            Arrays.asList(
+            new ArrayList<>(Arrays.asList(
                 ServiceDetail.builder().name("ServiceA").cost(BigDecimal.TEN).deviceType(deviceType).build(),
                 ServiceDetail.builder().name("ServiceB").cost(BigDecimal.ONE).deviceType(deviceType).build(),
-                ServiceDetail.builder().name("ServiceC").cost(BigDecimal.ZERO).deviceType(deviceType).build()));
+                ServiceDetail.builder().name("ServiceC").cost(BigDecimal.ZERO).deviceType(deviceType).build())));
 
-        when(serviceDetailService.getAutomaticServices()).thenReturn(new ArrayList<>());
+        when(serviceDetailService.getAutomaticServices()).thenReturn(
+            List.of(ServiceDetail.builder().name("ServiceAutomatic").cost(BigDecimal.ONE).automatic(true).build()));
 
         CustomerDeviceServicesRequestDto requestDto =
-            new CustomerDeviceServicesRequestDto(1L, List.of(1L, 2L, 3L), 2);
-
-
-        when(deviceServicesService.save(any())).thenReturn(DeviceServicesEntity.builder().build());
+            new CustomerDeviceServicesRequestDto(1L, List.of(1L, 2L, 3L));
 
         when(repository.save(any())).thenReturn(Customer.builder().build());
 
-        service.assignDeviceServices(ID, List.of(requestDto));
+        service.assignNewDeviceServices(ID, List.of(requestDto));
 
         verify(repository).save(customerCaptor.capture());
         verify(deviceServicesService).save(deviceServicesCaptor.capture());
@@ -152,19 +151,173 @@ public class CustomerServiceTest {
 
         assertNotNull(customer);
         assertEquals(customerResp.getName(), customer.getName());
-        assertEquals(new BigDecimal(11), deviceServicesEntity.getTotalCost());
-        assertEquals(2, deviceServicesEntity.getQuantity());
+        assertEquals(new BigDecimal(12), deviceServicesEntity.getTotalCost());
+    }
+
+    @Test
+    void assignServicesExistentDeviceServices() {
+        DeviceType deviceType = DeviceType.builder()
+            .id(1L)
+            .name("Type1")
+            .build();
+
+        Device device = Device.builder()
+            .id(1L)
+            .systemName("Device")
+            .type(deviceType)
+            .build();
+
+        customerResp.setDeviceServiceEntities(
+            List.of(DeviceServicesEntity.builder()
+                .id(1L)
+                .device(device)
+                .build()));
+
+        when(repository.findById(ID)).thenReturn(Optional.of(customerResp));
+
+        when(serviceDetailService.getServicesByDeviceType(deviceType, List.of(1L, 2L, 3L))).thenReturn(
+            Arrays.asList(
+                ServiceDetail.builder().name("ServiceA").cost(BigDecimal.TEN).deviceType(deviceType).build(),
+                ServiceDetail.builder().name("ServiceB").cost(BigDecimal.ONE).deviceType(deviceType).build(),
+                ServiceDetail.builder().name("ServiceC").cost(BigDecimal.ZERO).deviceType(deviceType).build()));
+
+        when(serviceDetailService.getAutomaticServices()).thenReturn(new ArrayList<>());
+
+        CustomerDeviceServicesChangeRequestDto requestDto =
+            new CustomerDeviceServicesChangeRequestDto(1L, List.of(1L, 2L, 3L));
+
+
+        when(repository.save(any())).thenReturn(Customer.builder().build());
+
+        service.assignServicesExistentDeviceServices(ID, List.of(requestDto));
+
+        verify(repository).save(customerCaptor.capture());
+
+        Customer customer = customerCaptor.getValue();
+
+        assertNotNull(customer);
+        assertEquals(customerResp.getName(), customer.getName());
+        assertEquals(new BigDecimal(11), customerResp.getDeviceServiceEntities().get(0).getTotalCost());
+    }
+
+    @Test
+    void assignServicesExistentDeviceServicesException() {
+        DeviceType deviceType = DeviceType.builder()
+            .id(1L)
+            .name("Type1")
+            .build();
+
+        Device device = Device.builder()
+            .id(1L)
+            .systemName("Device")
+            .type(deviceType)
+            .build();
+
+        customerResp.setDeviceServiceEntities(
+            List.of(DeviceServicesEntity.builder()
+                .id(2L)
+                .device(device)
+                .build()));
+
+        when(repository.findById(ID)).thenReturn(Optional.of(customerResp));
+
+        CustomerDeviceServicesChangeRequestDto requestDto =
+            new CustomerDeviceServicesChangeRequestDto(1L, List.of(1L, 2L, 3L));
+
+        String error = "ErrorTest";
+        when(messageUtil.getMessage("service.device.not.exists", new Object[]{1L})).thenReturn(error);
+
+        CustomerException exception = assertThrows(CustomerException.class, () ->
+            service.assignServicesExistentDeviceServices(ID, List.of(requestDto))
+        );
+
+        assertTrue(error.contains(exception.getMessage()));
     }
 
     @Test()
     void getCalculations() {
+
+        Customer customer = Customer.builder()
+            .deviceServiceEntities(List.of(
+                DeviceServicesEntity.builder()
+                    .totalCost(BigDecimal.TEN)
+                    .build(),
+                DeviceServicesEntity.builder()
+                    .totalCost(BigDecimal.TEN)
+                    .build(),
+                DeviceServicesEntity.builder()
+                    .totalCost(BigDecimal.ONE)
+                    .build(),
+                DeviceServicesEntity.builder()
+                    .totalCost(BigDecimal.ONE)
+                    .build()
+            ))
+            .build();
+
+        when(repository.findById(ID)).thenReturn(Optional.of(customer));
+
+        BigDecimal calculations = service.getCalculations(ID);
+
+        assertEquals(new BigDecimal("22"), calculations);
+    }
+
+    @Test()
+    void getDynamicCalculations() {
+
+        Customer customer = Customer.builder()
+            .deviceServiceEntities(List.of(
+                DeviceServicesEntity.builder()
+                    .services(List.of(
+                        ServiceDetail.builder()
+                            .cost(BigDecimal.TEN)
+                            .build(),
+                        ServiceDetail.builder()
+                            .cost(BigDecimal.TEN)
+                            .build(),
+                        ServiceDetail.builder()
+                            .cost(BigDecimal.TEN)
+                            .build()))
+                    .build(),
+                DeviceServicesEntity.builder()
+                    .services(List.of(
+                        ServiceDetail.builder()
+                            .cost(BigDecimal.TEN)
+                            .build(),
+                        ServiceDetail.builder()
+                            .cost(BigDecimal.ONE)
+                            .build()))
+                    .build(),
+                DeviceServicesEntity.builder()
+                    .services(List.of(
+                        ServiceDetail.builder()
+                            .cost(BigDecimal.TEN)
+                            .build()))
+                    .build(),
+                DeviceServicesEntity.builder()
+                    .services(List.of(
+                        ServiceDetail.builder()
+                            .cost(BigDecimal.ONE)
+                            .build()))
+                    .build()
+            ))
+            .build();
+
+        when(repository.findById(ID)).thenReturn(Optional.of(customer));
+
+        BigDecimal calculations = service.getDynamicCalculations(ID);
+
+        assertEquals(new BigDecimal("52"), calculations);
+    }
+
+    @Test()
+    void getCalculationsException() {
 
         when(repository.findById(any())).thenReturn(Optional.empty());
 
         String error = "ErrorTest";
         when(messageUtil.getMessage("customer.not.exists")).thenReturn(error);
 
-        Exception exception = assertThrows(CustomerException.class, () ->
+        CustomerException exception = assertThrows(CustomerException.class, () ->
             service.getCalculations(RandomUtils.nextLong())
         );
 

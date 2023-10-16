@@ -17,12 +17,6 @@ public interface DeviceService {
 
     void deleteDeviceEntity(Long id);
 
-    DeviceType saveDeviceTypeEntity(DeviceTypeRequestDto deviceTypeRequestDto);
-
-    Iterable<DeviceType> getAllDeviceType();
-
-    Optional<DeviceType> findDeviceTypeById(Long id);
-
     Device getDevice(Long deviceId);
 
 }

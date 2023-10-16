@@ -1,5 +1,6 @@
 package com.ninjaone.backendinterviewproject.service;
 
+import com.ninjaone.backendinterviewproject.dto.request.CustomerDeviceServicesChangeRequestDto;
 import com.ninjaone.backendinterviewproject.dto.request.CustomerDeviceServicesRequestDto;
 import com.ninjaone.backendinterviewproject.dto.request.CustomerRequestDto;
 import com.ninjaone.backendinterviewproject.model.Customer;
@@ -15,13 +16,13 @@ public interface CustomerService {
 
     void deleteCustomerEntity(Long id);
 
-    Customer assignDeviceServices(
+    Customer assignNewDeviceServices(
         Long customerId, List<CustomerDeviceServicesRequestDto> customerDeviceServicesRequestDtoList);
+
+    Customer assignServicesExistentDeviceServices(
+        Long customerId, List<CustomerDeviceServicesChangeRequestDto> customerDeviceServicesChangeRequestDtoList);
 
     BigDecimal getCalculations(Long customerId);
-
-    Customer deleteDeviceServices(
-        Long customerId, List<CustomerDeviceServicesRequestDto> customerDeviceServicesRequestDtoList);
 
     BigDecimal getDynamicCalculations(Long customerId);
 }

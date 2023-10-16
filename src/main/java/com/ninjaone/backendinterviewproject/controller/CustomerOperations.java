@@ -1,5 +1,6 @@
 package com.ninjaone.backendinterviewproject.controller;
 
+import com.ninjaone.backendinterviewproject.dto.request.CustomerDeviceServicesChangeRequestDto;
 import com.ninjaone.backendinterviewproject.dto.request.CustomerDeviceServicesRequestDto;
 import com.ninjaone.backendinterviewproject.dto.request.CustomerRequestDto;
 import com.ninjaone.backendinterviewproject.dto.response.CustomerDeviceServicesResponseDto;
@@ -51,15 +52,25 @@ public interface CustomerOperations {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteCustomerEntity(@PathVariable Long id);
 
-    @Operation(summary = "Assigns to a customer a device by its id and services chosen by a list of ids")
+    @Operation(summary = "Assigns to a customer new devices by its id and services chosen by a list of ids")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Device and services assigned successfully"),
         @ApiResponse(responseCode = "500", description = "Server error")})
     @PostMapping("/{customer-id}/assign")
     @ResponseStatus(HttpStatus.CREATED)
-    CustomerDeviceServicesResponseDto postCustomerDeviceServices(
+    CustomerDeviceServicesResponseDto postNewCustomerDeviceServices(
         @PathVariable("customer-id") Long customerId,
         @Valid @RequestBody List<CustomerDeviceServicesRequestDto> customerDeviceServicesRequestDtoList);
+
+    @Operation(summary = "Assigns to a customer a device by its id and services chosen by a list of ids")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Device and services assigned successfully"),
+        @ApiResponse(responseCode = "500", description = "Server error")})
+    @PostMapping("/{customer-id}/assign/device-service")
+    @ResponseStatus(HttpStatus.CREATED)
+    CustomerDeviceServicesResponseDto postCustomerDeviceServices(
+        @PathVariable("customer-id") Long customerId,
+        @Valid @RequestBody List<CustomerDeviceServicesChangeRequestDto> customerDeviceServicesChangeRequestDtoList);
 
     @Operation(summary = "Calculate the total cost of services and devices assigned")
     @ApiResponses(value = {
@@ -68,16 +79,6 @@ public interface CustomerOperations {
     @GetMapping("/{customer-id}/calculate")
     ResponseEntity<BigDecimal> getCustomerCalculations(
         @PathVariable("customer-id") Long customerId);
-
-    @Operation(summary = "Excludes services previous assigned by id device and list of services id")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Services excluded successfully"),
-        @ApiResponse(responseCode = "500", description = "Server error")})
-    @DeleteMapping("/{customer-id}/assign")
-    @ResponseStatus(HttpStatus.CREATED)
-    CustomerDeviceServicesResponseDto deleteCustomerDeviceServices(
-        @PathVariable("customer-id") Long customerId,
-        @Valid @RequestBody List<CustomerDeviceServicesRequestDto> customerDeviceServicesRequestDtoList);
 
     @Operation(summary = "Calculate dynamic the total cost of services and devices assigned")
     @ApiResponses(value = {

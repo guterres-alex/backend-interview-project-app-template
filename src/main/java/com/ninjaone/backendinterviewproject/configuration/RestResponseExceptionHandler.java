@@ -5,6 +5,8 @@ import com.ninjaone.backendinterviewproject.exception.CustomerException;
 import com.ninjaone.backendinterviewproject.exception.CustomerNotFoundException;
 import com.ninjaone.backendinterviewproject.exception.DeviceException;
 import com.ninjaone.backendinterviewproject.exception.DeviceNotFoundException;
+import com.ninjaone.backendinterviewproject.exception.DeviceTypeException;
+import com.ninjaone.backendinterviewproject.exception.DeviceTypeNotFoundException;
 import com.ninjaone.backendinterviewproject.exception.ServiceDetailException;
 import com.ninjaone.backendinterviewproject.exception.ServiceDetailNotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +40,19 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(DeviceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    protected ResponseEntity<ErrorResponseDto> handleRequestDeviceNotFoundException(DeviceNotFoundException exception) {
+    protected ResponseEntity<ErrorResponseDto> handleRequestDeviceNotFoundException() {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DeviceTypeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<ErrorResponseDto> handleRequestDeviceTypeException(DeviceTypeException exception) {
+        return new ResponseEntity<>(new ErrorResponseDto(exception.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DeviceTypeNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    protected ResponseEntity<ErrorResponseDto> handleRequestDeviceTypeNotFoundException() {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -50,7 +64,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(CustomerNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    protected ResponseEntity<ErrorResponseDto> handleRequestCustomerNotFoundException(CustomerNotFoundException exception) {
+    protected ResponseEntity<ErrorResponseDto> handleRequestCustomerNotFoundException() {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -62,9 +76,7 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
 
     @ExceptionHandler(ServiceDetailNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    protected ResponseEntity<ErrorResponseDto> handleRequestServiceDetailNotFoundException(
-        ServiceDetailNotFoundException exception) {
-
+    protected ResponseEntity<ErrorResponseDto> handleRequestServiceDetailNotFoundException() {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -74,9 +86,8 @@ public class RestResponseExceptionHandler extends ResponseEntityExceptionHandler
         MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
         List<String> errors = new ArrayList<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            errors.add(error.getDefaultMessage());
-        });
+        
+        ex.getBindingResult().getAllErrors().forEach((error) -> errors.add(error.getDefaultMessage()));
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", errors));
     }

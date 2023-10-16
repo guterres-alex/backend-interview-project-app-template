@@ -29,13 +29,13 @@ public class ServiceDetailController implements ServiceDetailOperations {
     }
 
     public ServiceDetailResponseDto getServiceDetailEntity(Long id) {
-        return service.getServiceDetailEntityById(id)
+        return service.findServiceDetailEntityById(id)
             .map(ServiceDetailMapper.INSTANCE::serviceDetailToServiceDetailResponseDto)
             .orElseThrow(ServiceDetailNotFoundException::new);
     }
 
     public List<ServiceDetailResponseDto> getAllServiceDetailEntity() {
-        return ofNullable(service.getAllServiceDetailEntity())
+        return ofNullable(service.findAllServiceDetailEntity())
             .map(ServiceDetailMapper.INSTANCE::serviceDetailListToServiceDetailResponseDtoList)
             .orElseThrow(ServiceDetailNotFoundException::new);
     }

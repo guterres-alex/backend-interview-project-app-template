@@ -54,18 +54,50 @@ To simulate the linking of devices in the instruction, simply use the following 
 
 ```json
 [
+  {
+    "deviceId": 1,
+    "services": [
+      2, 4, 5
+    ]
+  },
+  {
+    "deviceId": 1,
+    "services": [
+      2, 5
+    ]
+  },
+  {
+    "deviceId": 2,
+    "services": [
+      3, 4, 5
+    ]
+  },
+  {
+    "deviceId": 2,
+    "services": [
+      3, 4, 5
+    ]
+  },
+  {
+    "deviceId": 2,
+    "services": [
+      3
+    ]
+  }
+]
+```
+
+To change services assigned to a device and customer use `/customer/{customer-id}/assign/device-service` 
+with id of the relationship resulting from assignment operation.
+This operation will change all services, making it possible to add or delete all assigned services at the same time.
+
+Example:
+```
+[
     {
-        "deviceId": 1,
-        "quantity" : 2,
+        "deviceServiceId": 1,
         "services": [
-            2, 2, 4, 5, 5
-        ]
-    },
-    {
-        "deviceId": 2,
-        "quantity" : 3,
-        "services": [
-            3, 3, 3, 4, 4, 5, 5
+            2, 4
         ]
     }
 ]
@@ -73,6 +105,6 @@ To simulate the linking of devices in the instruction, simply use the following 
 
 There are two endpoints for checking results, one of them `/customer/{customer-id}/calculate` stores the calculations
 per device at runtime, making it faster, but if there are changes to the cost of the services this could be a problem.
-The other `/customer/{customer-id}/calculate/dynamic` does a dynamic calculation by device but requires heavier processing.
+The another `/customer/{customer-id}/calculate/dynamic` does a dynamic calculation by device but requires heavier processing.
 
 It is also possible check the endpoint documentation at the url: `/swagger-ui/index.html#/`

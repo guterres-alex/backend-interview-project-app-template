@@ -7,8 +7,8 @@ import com.ninjaone.backendinterviewproject.mapper.ServiceDetailMapper;
 import com.ninjaone.backendinterviewproject.model.DeviceServicesEntity;
 import com.ninjaone.backendinterviewproject.model.DeviceType;
 import com.ninjaone.backendinterviewproject.model.ServiceDetail;
-import com.ninjaone.backendinterviewproject.service.DeviceService;
 import com.ninjaone.backendinterviewproject.service.DeviceServicesService;
+import com.ninjaone.backendinterviewproject.service.DeviceTypeService;
 import com.ninjaone.backendinterviewproject.service.ServiceDetailService;
 import com.ninjaone.backendinterviewproject.utils.MessageUtil;
 import org.springframework.stereotype.Service;
@@ -21,26 +21,26 @@ import java.util.Optional;
 public class ServiceDetailServiceImpl implements ServiceDetailService {
 
     private final ServiceDetailRepository repository;
-    private final DeviceService deviceService;
+    private final DeviceTypeService deviceTypeService;
     private final DeviceServicesService deviceServicesService;
     private final MessageUtil messageUtil;
 
     public ServiceDetailServiceImpl(
-        ServiceDetailRepository repository, DeviceService deviceService,
+        ServiceDetailRepository repository, DeviceTypeService deviceTypeService,
         DeviceServicesService deviceServicesService, MessageUtil messageUtil) {
 
         this.repository = repository;
-        this.deviceService = deviceService;
+        this.deviceTypeService = deviceTypeService;
         this.deviceServicesService = deviceServicesService;
         this.messageUtil = messageUtil;
     }
 
     public ServiceDetail saveServiceDetailEntity(ServiceDetailRequestDto serviceDto) {
-        repository.findByNameIgnoreCaseAndDeviceTypeId(serviceDto.name(), serviceDto.deviceTypeId())
-            .orElseThrow(() -> new ServiceDetailException(messageUtil.getMessage("service.already.exists")));
+        if (repository.findByNameIgnoreCaseAndDeviceTypeId(serviceDto.name(), serviceDto.deviceTypeId()).isPresent()) {
+             throw new ServiceDetailException(messageUtil.getMessage("service.already.exists"));
+        }
 
-        DeviceType deviceType = deviceService.findDeviceTypeById(serviceDto.deviceTypeId())
-            .orElseThrow(() -> new ServiceDetailException(messageUtil.getMessage("device.type.not.exists")));
+        DeviceType deviceType = deviceTypeService.getById(serviceDto.deviceTypeId());
 
         ServiceDetail service = ServiceDetailMapper.INSTANCE.serviceDetailRequestDtoToServiceDetail(serviceDto);
         service.setDeviceType(deviceType);
@@ -48,11 +48,11 @@ public class ServiceDetailServiceImpl implements ServiceDetailService {
         return repository.save(service);
     }
 
-    public Optional<ServiceDetail> getServiceDetailEntityById(Long id) {
+    public Optional<ServiceDetail> findServiceDetailEntityById(Long id) {
         return repository.findById(id);
     }
 
-    public Iterable<ServiceDetail> getAllServiceDetailEntity() {
+    public Iterable<ServiceDetail> findAllServiceDetailEntity() {
         return repository.findAll();
     }
 
@@ -76,12 +76,6 @@ public class ServiceDetailServiceImpl implements ServiceDetailService {
         });
 
         return serviceDetailList;
-    }
-
-    public List<ServiceDetail> getServices(List<Long> services) {
-        return services.stream()
-            .map(this::getServiceDetail)
-            .toList();
     }
 
     private ServiceDetail getServiceDetail(Long serviceId) {

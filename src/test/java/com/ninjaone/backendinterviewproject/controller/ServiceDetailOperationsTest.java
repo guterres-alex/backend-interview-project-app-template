@@ -88,7 +88,7 @@ public class ServiceDetailOperationsTest {
 
     @Test
     void getServiceById() throws Exception {
-        when(service.getServiceDetailEntityById(SERVICE_DETAIL_ID)).thenReturn(Optional.of(serviceDetail));
+        when(service.findServiceDetailEntityById(SERVICE_DETAIL_ID)).thenReturn(Optional.of(serviceDetail));
 
         mockMvc.perform(get("/service/" + SERVICE_DETAIL_ID))
             .andExpect(status().isOk())
@@ -98,7 +98,7 @@ public class ServiceDetailOperationsTest {
 
     @Test
     void getService() throws Exception {
-        when(service.getAllServiceDetailEntity()).thenReturn(List.of(serviceDetail));
+        when(service.findAllServiceDetailEntity()).thenReturn(List.of(serviceDetail));
 
         mockMvc.perform(get("/service"))
             .andExpect(status().isOk())

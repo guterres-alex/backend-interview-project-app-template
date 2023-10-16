@@ -56,20 +56,4 @@ public interface DeviceOperations {
     @GetMapping
     List<DeviceResponseDto> getAllDeviceEntity();
 
-    @Operation(summary = "Creates a new device type")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Created device type"),
-        @ApiResponse(responseCode = "400", description = "Bad request"),
-        @ApiResponse(responseCode = "500", description = "Server Error")})
-    @PostMapping("/type")
-    @ResponseStatus(HttpStatus.CREATED)
-    DeviceTypeResponseDto postDeviceTypeEntity(@Valid @RequestBody DeviceTypeRequestDto deviceTypeRequestDto);
-
-    @Operation(summary = "Get all device types registered")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Types of device found"),
-        @ApiResponse(responseCode = "404", description = "No type of device were found")})
-    @GetMapping("/type")
-    List<DeviceTypeResponseDto> getAllDeviceTypeEntity();
-
 }

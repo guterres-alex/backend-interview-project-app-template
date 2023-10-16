@@ -70,7 +70,7 @@ public class CustomerOperationsTest {
             .name(CUSTOMER_NAME)
             .build();
 
-        customerDeviceServicesRequestDto = new CustomerDeviceServicesRequestDto(DEVICE_ID, List.of(1L, 2L), 2);
+        customerDeviceServicesRequestDto = new CustomerDeviceServicesRequestDto(DEVICE_ID, List.of(1L, 2L));
         customerDeviceServicesResponseDto = new CustomerDeviceServicesResponseDto(CUSTOMER_ID, CUSTOMER_NAME, null);
 
     }
@@ -106,7 +106,7 @@ public class CustomerOperationsTest {
 
     @Test
     void postCustomerDeviceService() throws Exception {
-        when(service.assignDeviceServices(CUSTOMER_ID, List.of(customerDeviceServicesRequestDto))).thenReturn(customer);
+        when(service.assignNewDeviceServices(CUSTOMER_ID, List.of(customerDeviceServicesRequestDto))).thenReturn(customer);
 
         mockMvc.perform(post("/customer/{customer-id}/assign", CUSTOMER_ID)
             .contentType(MediaType.APPLICATION_JSON)
@@ -123,17 +123,6 @@ public class CustomerOperationsTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(content().string(objectMapper.writeValueAsString(BigDecimal.ONE)));
-    }
-
-    @Test
-    void deleteCustomerDeviceService() throws Exception {
-        when(service.deleteDeviceServices(CUSTOMER_ID, List.of(customerDeviceServicesRequestDto))).thenReturn(customer);
-
-        mockMvc.perform(delete("/customer/{customer-id}/assign", CUSTOMER_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(List.of(customerDeviceServicesRequestDto))))
-            .andExpect(status().isCreated())
-            .andExpect(content().string(objectMapper.writeValueAsString(customerDeviceServicesResponseDto)));
     }
 
 }

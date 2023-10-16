@@ -3,7 +3,6 @@ package com.ninjaone.backendinterviewproject.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ninjaone.backendinterviewproject.BackendInterviewProjectApplication;
 import com.ninjaone.backendinterviewproject.dto.request.DeviceRequestDto;
-import com.ninjaone.backendinterviewproject.dto.request.DeviceTypeRequestDto;
 import com.ninjaone.backendinterviewproject.dto.response.DeviceResponseDto;
 import com.ninjaone.backendinterviewproject.dto.response.DeviceTypeResponseDto;
 import com.ninjaone.backendinterviewproject.model.Device;
@@ -54,30 +53,18 @@ public class DeviceOperationsTest {
     @MockBean
     private DeviceService service;
 
-    private DeviceTypeRequestDto deviceTypeRequestDto;
-
-    private DeviceTypeResponseDto deviceTypeResponseDto;
-
     private DeviceRequestDto deviceRequestDto;
 
     private DeviceResponseDto deviceResponseDto;
 
     private Device device;
 
-    private DeviceType deviceType;
-
     @BeforeEach
     void setup() {
 
         deviceRequestDto = new DeviceRequestDto(DEVICE_NAME, 1L);
-        deviceTypeRequestDto = new DeviceTypeRequestDto(DEVICE_TYPE_NAME);
-        deviceTypeResponseDto = new DeviceTypeResponseDto(DEVICE_TYPE_ID, DEVICE_TYPE_NAME);
-        deviceResponseDto = new DeviceResponseDto(DEVICE_ID, DEVICE_NAME, deviceTypeResponseDto);
-
-        deviceType = DeviceType.builder()
-            .id(DEVICE_TYPE_ID)
-            .name(DEVICE_TYPE_NAME)
-            .build();
+        deviceResponseDto = new DeviceResponseDto(
+            DEVICE_ID, DEVICE_NAME, new DeviceTypeResponseDto(DEVICE_TYPE_ID, DEVICE_TYPE_NAME));
 
         device = Device.builder()
             .id(DEVICE_ID)
@@ -116,27 +103,6 @@ public class DeviceOperationsTest {
 
         mockMvc.perform(delete("/device/" + DEVICE_ID))
             .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void postDeviceType() throws Exception {
-        when(service.saveDeviceTypeEntity(deviceTypeRequestDto)).thenReturn(deviceType);
-
-        mockMvc.perform(post("/device/type")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(deviceTypeRequestDto)))
-            .andExpect(status().isCreated())
-            .andExpect(content().string(objectMapper.writeValueAsString(deviceTypeResponseDto)));
-    }
-
-    @Test
-    void getDeviceType() throws Exception {
-        when(service.getAllDeviceType()).thenReturn(List.of(deviceType));
-
-        mockMvc.perform(get("/device/type"))
-            .andExpect(status().isOk())
-            .andExpect(content().string(
-                objectMapper.writeValueAsString(List.of(deviceTypeResponseDto))));
     }
 
     @Test

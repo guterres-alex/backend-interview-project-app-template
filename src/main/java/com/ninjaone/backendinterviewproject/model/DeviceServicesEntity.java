@@ -11,7 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -33,8 +32,5 @@ public class DeviceServicesEntity {
     private List<ServiceDetail> services;
 
     private BigDecimal totalCost = BigDecimal.ZERO;
-
-    @NotNull
-    private Integer quantity;
 
 }
